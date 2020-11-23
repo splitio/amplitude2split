@@ -151,7 +151,7 @@ public class App
 						JSONObject userPropsObj = o.getJSONObject("user_properties");
 						String[] userPropsKeys 
 							= new String[] { "organizationPlatType", "role", "organizationName",
-									"organizationSupportPlanType", "name", "email"};
+									"organizationSupportPlanType"};
 						for(String userPropKey : userPropsKeys) {
 							addStringProperty(userPropsObj, propertiesObj, "user_properties.", userPropKey);
 						}

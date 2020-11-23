@@ -5,10 +5,8 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -57,6 +55,7 @@ public class App
 		for(int i = 0; i < keysArray.length(); i++) {
 			STRING_PROPERTY_KEYS[i] = keysArray.getString(i);
 		}
+		String USER_ID = configObj.getString("key");
 
 		Instant nowUtc = Instant.now();
 		Instant hourAgoUtc = nowUtc.minus(1, ChronoUnit.HOURS);
@@ -117,13 +116,13 @@ public class App
 					event.put("environmentTypeName", SPLIT_ENVIRONMENT);
 					
 					String user_id = "";
-					if(o.has("user_id")) {
-						user_id = o.getString("user_id");	
+					if(o.has(USER_ID)) {
+						user_id = o.getString(USER_ID);	
 					}
 					event.put("key", user_id);
 					
 					if(user_id.isEmpty()) {
-						System.err.println("WARN - user_id not found for event: " + o.toString(2));
+						System.err.println("WARN - " + USER_ID + " not found for event: " + o.toString(2));
 						continue;
 					}
 					
@@ -163,7 +162,9 @@ public class App
 				}
 
 				System.out.println("INFO - processed " + events.length() + " events");
-				
+				if(events.length() > 0) {
+					System.out.println("INFO - last event: " + events.getJSONObject(events.length() - 1).toString(2));
+				}
 			}
 		} else {
 			System.err.println("WARN - exiting with error on data extraction API call...");

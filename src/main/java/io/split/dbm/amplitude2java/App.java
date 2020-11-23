@@ -44,19 +44,20 @@ public class App
         new App().execute();
     }
 
-    private final static Long MILLS_IN_DAY = 86400000L;
-    public static final String AMPLITUDE_PREFIX = "amp.";
-	private static final String SPLIT_TRAFFIC_TYPE = "user";
-	private static final String SPLIT_ENVIRONMENT = "Prod-Default";
-	public static final String[] STRING_PROPERTY_KEYS 
-		= new String[] { "country", "language", "device_type", "device_carrier", "uuid",
-				"region", "device_model", "city", "device_family", "platform", "os_version",
-				"ip_address", "os_name", "dma"};
-
 	private void execute() throws Exception {
-		final String AMPLITUDE_API_TOKEN = readFile("amplitude_api_key");
-		final String AMPLITUDE_API_SECRET = readFile("amplitude_api_secret");
-		
+		String configFile = readFile("amplitude2java.config");
+		JSONObject configObj = new JSONObject(configFile);
+		String AMPLITUDE_API_TOKEN = configObj.getString("amplitude.api.key");
+		String AMPLITUDE_API_SECRET = configObj.getString("amplitude.api.secret");
+		String SPLIT_TRAFFIC_TYPE = configObj.getString("trafficType");
+		String SPLIT_ENVIRONMENT = configObj.getString("environment");
+		String AMPLITUDE_PREFIX = configObj.getString("eventPrefix");
+		JSONArray keysArray = configObj.getJSONArray("string.property.keys");
+		String[] STRING_PROPERTY_KEYS = new String[keysArray.length()];
+		for(int i = 0; i < keysArray.length(); i++) {
+			STRING_PROPERTY_KEYS[i] = keysArray.getString(i);
+		}
+
 		Instant nowUtc = Instant.now();
 		Instant hourAgoUtc = nowUtc.minus(1, ChronoUnit.HOURS);
 		Date now = Date.from(nowUtc);
@@ -70,7 +71,6 @@ public class App
 		
 		String end = format.format(now);
 		String start = format.format(hourAgo);
-		System.out.println("start: " + start + " end: " + end);
 		
 		CredentialsProvider provider = new BasicCredentialsProvider();
 		UsernamePasswordCredentials credentials
@@ -82,14 +82,12 @@ public class App
 		  .build();
 		 
 		String uri = "https://amplitude.com/api/2/export?start=" + start + "&end=" + end;
-		System.out.println("GET " + uri);
+		System.out.println("INFO - GET " + uri);
 		HttpResponse response = client.execute(new HttpGet(uri));
 		int statusCode = response.getStatusLine().getStatusCode();
-		System.out.println(statusCode);
+		System.out.println("INFO - status code: " + statusCode);
 		
-		if(statusCode >= 200 && statusCode < 300) {
-			String resultFile = "amplitude-" + end + ".zip";
-			
+		if(statusCode >= 200 && statusCode < 300) {			
 			// Handle the wrapper ZIP
 			BufferedInputStream bis = new BufferedInputStream(response.getEntity().getContent());
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -102,7 +100,7 @@ public class App
 			ZipArchiveEntry entry = null;
 			while ((entry = zis.getNextZipEntry()) != null) {
 				// Handle the Gzipd JSON
-				System.out.println(entry.getName());
+				System.out.println("INFO - " + entry.getName());
 				ByteArrayOutputStream zipBaos = new ByteArrayOutputStream();
 				IOUtils.copy(zis, zipBaos);
 				GZIPInputStream gzis = new GZIPInputStream(new ByteArrayInputStream(zipBaos.toByteArray()));
@@ -110,7 +108,6 @@ public class App
 				IOUtils.copy(gzis, jsonBaos);
 				BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(jsonBaos.toByteArray())));
 				String line = null;
-				PrintWriter writer = new PrintWriter(new FileWriter("out.json"));
 				JSONArray events = new JSONArray();
 				while((line = reader.readLine()) != null) {
 					JSONObject o = new JSONObject(line);
@@ -126,7 +123,7 @@ public class App
 					event.put("key", user_id);
 					
 					if(user_id.isEmpty()) {
-						System.err.println("WARN user_id not found for event: " + o.toString(2));
+						System.err.println("WARN - user_id not found for event: " + o.toString(2));
 						continue;
 					}
 					
@@ -162,16 +159,14 @@ public class App
 					}
 
 					event.put("properties", propertiesObj);
-					
 					events.put(event);
 				}
 
-				System.out.println(events.getJSONObject(events.length() - 1).toString(2));
-				System.out.println("handled " + events.length() + " events");
+				System.out.println("INFO - processed " + events.length() + " events");
 				
 			}
 		} else {
-			System.err.println("exiting with error on data extraction API call...");
+			System.err.println("WARN - exiting with error on data extraction API call...");
 		}
 	}
 	

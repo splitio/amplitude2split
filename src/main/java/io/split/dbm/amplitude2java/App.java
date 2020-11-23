@@ -1,7 +1,6 @@
 package io.split.dbm.amplitude2java;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,13 +42,17 @@ public class App
     }
 
 	private void execute() throws Exception {
+		long begin = System.currentTimeMillis();
+		
 		String configFile = readFile("amplitude2java.config");
 		JSONObject configObj = new JSONObject(configFile);
 		String AMPLITUDE_API_TOKEN = configObj.getString("amplitude.api.key");
 		String AMPLITUDE_API_SECRET = configObj.getString("amplitude.api.secret");
+		String SPLIT_API_TOKEN = configObj.getString("split.api.key");
 		String SPLIT_TRAFFIC_TYPE = configObj.getString("trafficType");
 		String SPLIT_ENVIRONMENT = configObj.getString("environment");
 		String AMPLITUDE_PREFIX = configObj.getString("eventPrefix");
+		int BATCH_SIZE = configObj.getInt("batchSize");
 		JSONArray keysArray = configObj.getJSONArray("string.property.keys");
 		String[] STRING_PROPERTY_KEYS = new String[keysArray.length()];
 		for(int i = 0; i < keysArray.length(); i++) {
@@ -67,6 +70,8 @@ public class App
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd'T'HH");
 		SimpleDateFormat serverFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 		SimpleDateFormat serverFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		
+		System.out.println("INFO - start at " + serverFormat2.format(new Date(begin)));
 		
 		String end = format.format(now);
 		String start = format.format(hourAgo);
@@ -90,7 +95,6 @@ public class App
 			// Handle the wrapper ZIP
 			BufferedInputStream bis = new BufferedInputStream(response.getEntity().getContent());
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			BufferedOutputStream bos = new BufferedOutputStream(baos);
 			IOUtils.copy(bis, baos);
 			
 			ZipArchiveInputStream zis = new ZipArchiveInputStream(
@@ -159,8 +163,11 @@ public class App
 
 					event.put("properties", propertiesObj);
 					events.put(event);
+									
 				}
-
+				CreateEvents creator = new CreateEvents(SPLIT_API_TOKEN, BATCH_SIZE);
+				creator.doPost(events);
+				
 				System.out.println("INFO - processed " + events.length() + " events");
 				if(events.length() > 0) {
 					System.out.println("INFO - last event: " + events.getJSONObject(events.length() - 1).toString(2));
@@ -169,6 +176,8 @@ public class App
 		} else {
 			System.err.println("WARN - exiting with error on data extraction API call...");
 		}
+		
+		System.out.println("INFO - finish in " + ((System.currentTimeMillis() - begin) / 1000) + "s");
 	}
 	
 	private void addStringProperty(JSONObject src, JSONObject dest, String prefix, String name) {
@@ -179,7 +188,7 @@ public class App
 		dest.put(prefix + name, value);
 	}
 	
-	static String readFile(String path)
+	public static String readFile(String path)
 			throws IOException
 	{
 		byte[] encoded = Files.readAllBytes(Paths.get(path));

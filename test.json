@@ -1,0 +1,27 @@
+{
+  "eventTypeId": "amp.get_treatment",
+  "environmentTypeName": "Prod-Default",
+  "trafficTypeName": "user",
+  "key": "3f61fa80-78de-11ea-8b46-0ad87b86182f",
+  "properties": {
+    "country": "Portugal",
+    "user_properties.role": "Member",
+    "device_model": "",
+    "user_properties.organizationSupportPlanType": "STANDARD",
+    "city": "Fátima",
+    "os_version": "86",
+    "device_family": "Mac OS",
+    "language": "English",
+    "device_type": "",
+    "device_carrier": "",
+    "ip_address": "93.108.12.160",
+    "uuid": "ac89c9d0-2d9c-11eb-b52f-065aa583f0dd",
+    "platform": "Web",
+    "user_properties.organizationName": "Talkdesk Inc",
+    "user_properties.organizationPlatType": "",
+    "os_name": "Chrome",
+    "dma": "",
+    "region": "Santarém"
+  },
+  "timestamp": 1606165916000
+}

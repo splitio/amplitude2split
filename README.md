@@ -7,8 +7,8 @@ It takes about a minute to send 40k events with the default batch size of 5000.
 You must run with an amplitude2java.config
 
 Configuration Fields:
-* "amplitude.api.key" "amplitude.api.secret" Amplitude API key and secret from Amplitude UI
-* "split.api.key" Split Admin API key from Split UI
+* "amplitude.api.key" "amplitude.api.secret" - Amplitude API key and secret from Amplitude UI
+* "split.api.key" - Split Admin API key from Split UI
 * "trafficType" - Split traffic type, usually the default "user".
 * "environment" - Split environment, often the default "Prod-Default".
 * "eventPrefix" - Split events will prefixed with "amp." by default to make them recognizable.  Empty string is accepted.

@@ -74,6 +74,7 @@ public class App
 				STRING_PROPERTY_KEYS[i] = keysArray.getString(i);
 			}
 			String USER_ID = configObj.getString("key");
+			String VALUE_KEY = configObj.getString("value");
 
 			Instant nowUtc = Instant.now();
 			Instant hourAgoUtc = nowUtc.minus(1, ChronoUnit.HOURS);
@@ -140,6 +141,18 @@ public class App
 							user_id = o.getString(USER_ID);	
 						}
 						event.put("key", user_id);
+						
+						// no value if there's an empty or missing key
+						if(o.has(VALUE_KEY)) {
+							Object valueObj = o.get(VALUE_KEY);
+							if(valueObj instanceof Integer) {
+								event.put("value", o.getInt(VALUE_KEY));
+							} else if (valueObj instanceof Float) {
+								event.put("value", o.getFloat(VALUE_KEY));
+							} else {
+								System.err.println("WARN - value was neither integer or float: " + valueObj);
+							}
+						}
 
 						if(user_id.isEmpty()) {
 							System.err.println("WARN - " + USER_ID + " not found for event: " + o.toString(2));

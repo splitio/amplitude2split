@@ -1,5 +1,7 @@
 # amplitude2java
 
+![alt text](http://www.cortazar-split.com/Amplitude2SplitEventsIntegration.png)
+
 To run, build the project and find the executable JAR in the target/ subdirectory.  Create an amplitude2java.config (using instructions below) and be sure to put in correct API key and secret from Amplitude and Split Admin API key.  
 
 Run from command line (expects Java 8+):

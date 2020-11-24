@@ -13,6 +13,7 @@ Configuration Fields:
 * "environment" - Split environment, often the default "Prod-Default".
 * "eventPrefix" - Split events will prefixed with "amp." by default to make them recognizable.  Empty string is accepted.
 * "key" - the Amplitude key to use for Split's event key, "user_id" by default.
+* "value" - the Amplitude key to use for Split's value, empty means no value reported.
 * "batchSize" - the number of Split events to post to Split in each batch
 * "string.property.keys" - the array of Amplitude event keys to include in Split.  You can add or remove any key.  Only root elements are found.
 
@@ -29,6 +30,7 @@ amplitude2java.config:
   "environment" : "Prod-Default",
   "eventPrefix" : "amp.",
   "key" : "user_id",
+  "value" : "",
   "batchSize" : 5000,
   "string.property.keys" : [
   	 "country", 

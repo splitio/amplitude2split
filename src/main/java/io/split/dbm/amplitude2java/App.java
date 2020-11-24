@@ -138,7 +138,13 @@ public class App
 
 						String user_id = "";
 						if(o.has(USER_ID)) {
-							user_id = o.getString(USER_ID);	
+							Object userObj = o.get(USER_ID);
+							if(userObj instanceof String) {
+								user_id = o.getString(USER_ID);	
+							} else {
+								System.err.println("WARN - " + USER_ID + " is not a string: " + userObj.toString());
+								user_id = userObj.toString();
+							}
 						}
 						event.put("key", user_id);
 						

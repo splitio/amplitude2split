@@ -112,8 +112,9 @@ public class App
 				BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(jsonBaos.toByteArray())));
 				String line = null;
 				JSONArray events = new JSONArray();
+				JSONObject o = null;
 				while((line = reader.readLine()) != null) {
-					JSONObject o = new JSONObject(line);
+					o = new JSONObject(line);
 
 					JSONObject event = new JSONObject();
 					event.put("trafficTypeName", SPLIT_TRAFFIC_TYPE);
@@ -170,7 +171,8 @@ public class App
 				
 				System.out.println("INFO - processed " + events.length() + " events");
 				if(events.length() > 0) {
-					System.out.println("INFO - last event: " + events.getJSONObject(events.length() - 1).toString(2));
+					System.out.println("INFO - last input event: " + o.toString(2));
+					System.out.println("INFO - last split event: " + events.getJSONObject(events.length() - 1).toString(2));
 				}
 			}
 		} else {

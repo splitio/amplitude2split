@@ -4,6 +4,7 @@ You must run with an amplitude2java.config
 Sample below.
 
 amplitude2java.config:
+```
 {
   "amplitude.api.key" : "094c***********dc951",
   "amplitude.api.secret" : "0fd15***********77844b3",
@@ -31,3 +32,4 @@ amplitude2java.config:
   ]
   
 }
+```

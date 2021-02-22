@@ -1,14 +1,14 @@
-# amplitude2java
+# amplitude2split
 
 ![alt text](http://www.cortazar-split.com/Amplitude2SplitEventsIntegration.png)
 
-To run, build the project and find the executable JAR in the target/ subdirectory.  Create an amplitude2java.config (using instructions below) and be sure to put in correct API key and secret from Amplitude and Split Admin API key.  
+To run, build the project and find the executable JAR in the target/ subdirectory.  Create an amplitude2split.config (using instructions below) and be sure to put in correct API key and secret from Amplitude and Split Admin API key.  
 
 Run from command line (expects Java 8+):
 
-java -jar amplitude2java-0.0.1-SNAPSHOT-jar-with-dependencies.jar amplitude2java.config
+java -jar amplitude2split-0.0.1-SNAPSHOT-jar-with-dependencies.jar amplitude2split.config
 
-When run, builds a start and end time that describes the past hour, then invokes Amplitudes Export API (https://developers.amplitude.com/docs/export-api) to retrieve all events during that time period.  Amplitude responds with a compressed ZIP archive.  Amplitude2Java uncompresses the archive in memory, yielding a set of GZIPd JSON files.  Amplitude2Java decompresses to JSON in memory, one file at a time, parsing the source JSON events and creating new Split JSON events.  Once a file is finished parsing, Amplitude2Java POSTs the Split Events in batches to Split's events API.  The contents of the events and the batch size is configurable.
+When run, builds a start and end time that describes the past hour, then invokes Amplitudes Export API (https://developers.amplitude.com/docs/export-api) to retrieve all events during that time period.  Amplitude responds with a compressed ZIP archive.  Amplitude2Split uncompresses the archive in memory, yielding a set of GZIPd JSON files.  Amplitude2Split decompresses to JSON in memory, one file at a time, parsing the source JSON events and creating new Split JSON events.  Once a file is finished parsing, Amplitude2Split POSTs the Split Events in batches to Split's events API.  The contents of the events and the batch size is configurable.
 
 It takes about a minute to send 40k events with the default batch size of 5000.
 
@@ -26,7 +26,7 @@ Configuration Fields:
 
 Sample below.
 
-amplitude2java.config:
+amplitude2split.config:
 ```
 {
   "amplitude.api.key" : "094c***********dc951",

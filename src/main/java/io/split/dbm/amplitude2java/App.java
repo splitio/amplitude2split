@@ -1,4 +1,4 @@
-package io.split.dbm.amplitude2java;
+package io.split.dbm.amplitude2split;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -39,7 +39,7 @@ public class App
 {
 	public static void main( String[] args) {
 		if(args.length < 1) {
-			System.err.println("ERROR - first argument should be configuration file  (e.g. java -jar amplitude2java.jar amplitude2java.config)");
+			System.err.println("ERROR - first argument should be configuration file  (e.g. java -jar amplitude2split.jar amplitude2split.config)");
 		} else {
 			File configFile = new File(args[0]);
 			if(!configFile.exists()) {

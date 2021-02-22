@@ -4,11 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>io.split.dbm</groupId>
-	<artifactId>amplitude2java</artifactId>
+	<artifactId>amplitude2split</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>amplitude2java</name>
+	<name>amplitude2split</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>
@@ -49,7 +49,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>io.split.dbm.amplitude2java.App</mainClass>
+							<mainClass>io.split.dbm.amplitude2split.App</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>

@@ -12,12 +12,12 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.json.JSONArray;
 
-public class CreateEvents {
+public class SplitEventsClient {
 	
 	private String apiToken;
 	private int batchSize;
 
-	public CreateEvents(String splitApiToken, int batchSize) {
+	public SplitEventsClient(String splitApiToken, int batchSize) {
 		this.apiToken = splitApiToken;
 		this.batchSize = batchSize;
 	}

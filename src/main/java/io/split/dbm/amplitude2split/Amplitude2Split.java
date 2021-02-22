@@ -35,7 +35,7 @@ import org.json.JSONObject;
  * Hello world!
  *
  */
-public class App 
+public class Amplitude2Split
 {
 	public static void main( String[] args) {
 		if(args.length < 1) {
@@ -47,7 +47,7 @@ public class App
 			} else {
 				try {
 					JSONObject configObj = new JSONObject(readFile(args[0]));
-					new App().execute(args[0]);
+					new io.split.dbm.amplitude2split.Amplitude2Split().execute(args[0]);
 				} catch (Exception e) {
 					System.err.println("ERROR - invalid JSON config file: " + args[0]);			
 				}

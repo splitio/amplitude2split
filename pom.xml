@@ -49,7 +49,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>io.split.dbm.amplitude2split.App</mainClass>
+							<mainClass>io.split.dbm.amplitude2split.Amplitude2Split</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>

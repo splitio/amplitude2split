@@ -1,4 +1,4 @@
-package io.split.dbm.amplitude2java;
+package io.split.dbm.amplitude2split;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

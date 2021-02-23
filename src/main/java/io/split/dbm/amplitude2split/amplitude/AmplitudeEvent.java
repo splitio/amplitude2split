@@ -32,12 +32,12 @@ public class AmplitudeEvent {
             if(userObj instanceof String) {
                 userId = amplitudeEvent.getString(userIdField);
             } else {
-                System.err.println("WARN - " + userIdField + " is not a string: " + userObj.toString());
+                System.err.printf("WARN - User ID field is not a string: field=%s value=%s %n", userIdField, userObj.toString());
                 userId = userObj.toString();
             }
         }
         if(userId.isEmpty()) {
-            System.err.println("WARN - " + userIdField + " not found for event: " + amplitudeEvent.toString(2));
+            System.err.printf("WARN - User ID field not found for event: field=%s event=%s %n", userIdField, amplitudeEvent.toString(2));
             return Optional.empty();
         }
         return Optional.of(userId);
@@ -49,7 +49,7 @@ public class AmplitudeEvent {
             try {
                 return Optional.of(amplitudeEvent.getDouble(config.valueField));
             } catch (JSONException exception) {
-                System.err.println("WARN - Event did not have a valid Value: key=" + config.valueField);
+                System.err.printf("WARN - Event did not have a valid Value: key=%s %n", config.valueField);
             }
         }
         return Optional.empty();

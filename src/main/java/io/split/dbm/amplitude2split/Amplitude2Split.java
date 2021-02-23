@@ -26,7 +26,7 @@ public class Amplitude2Split {
 			String configFilePath = args[0];
 			Configuration config = new Configuration(configFilePath);
 
-			System.out.println("INFO - start at " + config.jobStartTime());
+			System.out.printf("INFO - Starting Sync at: time=%s %n", config.jobStartTime());
 
 			// Initialize clients
 			AmplitudeEventsClient amplitudeEventsClient = new AmplitudeEventsClient(config);
@@ -50,10 +50,10 @@ public class Amplitude2Split {
 			splitEventsClient.sendEvents(batch);
 
 			// Finish
-			System.out.println("INFO - Finished in " + config.jobElapsedTime() + " seconds");
+			System.out.printf("INFO - Finished sync: elapsed= %ss %n", config.jobElapsedTime());
 			System.exit(0);
 		} catch(Exception e) {
-			System.err.println("ERROR - Exiting with error: " + e.getMessage());
+			System.err.printf("ERROR - Exiting with error: %s %n", e.getMessage());
 			e.printStackTrace(System.err);
 			System.exit(1);
 		}

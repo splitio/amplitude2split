@@ -30,7 +30,7 @@ public class AmplitudeEventsClient {
     private Optional<AmplitudeEventResult> requestEvents() throws IOException, InterruptedException {
         URI uri = URI.create(String.format(EVENTS_URL, config.windowStart(), config.windowEnd()));
 
-        System.out.println("INFO - Requesting Amplitude events: GET " + uri);
+        System.out.printf("INFO - Requesting Amplitude events: GET %s %n", uri);
 
         HttpRequest request =  HttpRequest.newBuilder(uri).GET()
                 .header("Authorization", basicAuth(config.amplitudeApiKey, config.amplitudeApiSecret))
@@ -39,7 +39,7 @@ public class AmplitudeEventsClient {
 
         int statusCode = response.statusCode();
         if(statusCode >= 300) {
-            System.err.println("ERROR - Amplitude events request failed: status=" + statusCode);
+            System.err.printf("ERROR - Amplitude events request failed: status=%s %n", statusCode);
             return Optional.empty();
         }
         return Optional.of(new AmplitudeEventResult(config, response.body()));

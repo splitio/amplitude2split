@@ -43,7 +43,7 @@ public class SplitEventsClient {
 
 			return Optional.of(splitEvent);
 		} catch (IllegalStateException exception) {
-			System.err.println("WARN - Could not parse event - " + exception.getMessage());
+			System.err.printf("WARN - Error parsing Split event: error=%s %n", exception.getMessage());
 			return Optional.empty();
 		}
 	}
@@ -59,9 +59,8 @@ public class SplitEventsClient {
 					.build();
 			HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-			System.out.println("INFO - POST to Split status code: " + response.statusCode());
 			if(response.statusCode() >= 400) {
-				System.err.println(response.body());
+				System.err.printf("ERROR - Sending events to Split failed: status=%s response=%s %n", response.statusCode(), response.body());
 			}
 
 			// Courtesy to minimize pressure on API

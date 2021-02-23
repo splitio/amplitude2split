@@ -61,7 +61,7 @@ class AmplitudeEventResult implements Iterator<AmplitudeEvent> {
             if(entry == null) {
                 return Optional.empty();
             }
-            System.out.println("INFO - Processing file: " + entry.getName());
+            System.out.printf("INFO - Processing file: %s %n", entry.getName());
 
             // Read Events From File
             BufferedReader gzipFile = new BufferedReader(new InputStreamReader(new GZIPInputStream(eventsArchive)));

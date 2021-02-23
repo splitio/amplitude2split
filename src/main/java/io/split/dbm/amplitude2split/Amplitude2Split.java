@@ -24,8 +24,7 @@ public class Amplitude2Split {
 		try {
 			// Parse config file
 			String configFilePath = args[0];
-			Configuration config = Configuration.fromFile(configFilePath)
-					.orElseThrow(() -> new IllegalStateException("Bad configuration file: " + configFilePath));
+			Configuration config = new Configuration(configFilePath);
 
 			System.out.println("INFO - start at " + config.jobStartTime());
 

@@ -4,16 +4,17 @@ import io.split.dbm.amplitude2split.Configuration;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 public class AmplitudeEventsClient {
+    private static final String EVENTS_URL = "https://amplitude.com/api/2/export?start=%s&end=%s";
+
     private final Configuration config;
 
     public AmplitudeEventsClient(Configuration config) {
@@ -27,9 +28,14 @@ public class AmplitudeEventsClient {
     }
 
     private Optional<AmplitudeEventResult> requestEvents() throws IOException, InterruptedException {
-        HttpClient client = client();
-        HttpRequest request = eventsRequest();
-        HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+        URI uri = URI.create(String.format(EVENTS_URL, config.windowStart(), config.windowEnd()));
+
+        System.out.println("INFO - Requesting Amplitude events: GET " + uri);
+
+        HttpRequest request =  HttpRequest.newBuilder(uri).GET()
+                .header("Authorization", basicAuth(config.amplitudeApiKey, config.amplitudeApiSecret))
+                .build();
+        HttpResponse<InputStream> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofInputStream());
 
         int statusCode = response.statusCode();
         if(statusCode >= 300) {
@@ -39,27 +45,7 @@ public class AmplitudeEventsClient {
         return Optional.of(new AmplitudeEventResult(config, response.body()));
     }
 
-    private HttpClient client() {
-        return HttpClient.newBuilder()
-                .authenticator(new Authenticator() {
-                    @Override
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(config.amplitudeApiKey, config.amplitudeApiSecret.toCharArray());
-                    }
-                })
-                .build();
-    }
-
-    private HttpRequest eventsRequest() {
-        String start = config.windowStart();
-        String end = config.windowEnd();
-        String uri = "https://amplitude.com/api/2/export?start=" + start + "&end=" + end;
-
-        System.out.println("INFO - GET " + uri);
-
-        return HttpRequest.newBuilder()
-                .GET()
-                .uri(URI.create(uri))
-                .build();
+    private static String basicAuth(String username, String password) {
+        return "Basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
     }
 }

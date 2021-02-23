@@ -1,7 +1,7 @@
 package io.split.dbm.amplitude2split;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -11,55 +11,85 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 public class Configuration {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd'T'HH");
 
-    public String amplitudeApiKey;
-    public String amplitudeApiSecret;
-    public String splitApiKey;
-    public String splitTrafficType;
-    public String splitEnvironment;
-    public String eventTypePrefix;
-    public String userIdField;
-    public String valueField;
-    public int batchSize;
-    public Set<String> propertyFields;
-
     private final Duration fetchWindow;
     private final Instant jobStart;
 
-    public Configuration(String configFilePath) throws IOException {
-        this.jobStart = Instant.now();
-        this.fetchWindow = Duration.ofHours(1);
+    @SerializedName("amplitude.api.key")
+    private String amplitudeApiKey;
+    @SerializedName("amplitude.api.secret")
+    private String amplitudeApiSecret;
+    @SerializedName("split.api.key")
+    private String splitApiKey;
+    @SerializedName("trafficType")
+    private String splitTrafficType;
+    @SerializedName("environment")
+    private String splitEnvironment;
+    @SerializedName("eventPrefix")
+    private String eventTypePrefix;
+    @SerializedName("key")
+    private String userIdField;
+    @SerializedName("value")
+    private String valueField;
+    @SerializedName("batchSize")
+    private int batchSize;
+    @SerializedName("string.property.keys")
+    private Set<String> propertyFields;
 
+    public static Configuration fromFile(String configFilePath) throws IOException {
         // Read Configuration
         byte[] encoded = Files.readAllBytes(Paths.get(configFilePath));
         String configContents = new String(encoded, Charset.defaultCharset());
-        JSONObject configObj = new JSONObject(configContents);
-
-        // Build Configuration
-        this.amplitudeApiKey = configObj.getString("amplitude.api.key");
-        this.amplitudeApiSecret = configObj.getString("amplitude.api.secret");
-        this.splitApiKey = configObj.getString("split.api.key");
-        this.splitTrafficType = configObj.getString("trafficType");
-        this.splitEnvironment = configObj.getString("environment");
-        this.eventTypePrefix = configObj.getString("eventPrefix");
-        this.batchSize = configObj.getInt("batchSize");
-        this.userIdField = configObj.getString("key");
-        this.valueField = configObj.getString("value");
-
-        JSONArray keysArray = configObj.getJSONArray("string.property.keys");
-        this.propertyFields = new HashSet<>();
-        for(int i = 0; i < keysArray.length(); i++) {
-            this.propertyFields.add(keysArray.getString(i));
-        }
+        return new Gson().fromJson(configContents, Configuration.class);
     }
 
-    public String jobStartTime() {
-        return jobStart.toString();
+    public Configuration() {
+        this.jobStart = Instant.now();
+        this.fetchWindow = Duration.ofHours(1);
+    }
+
+    public String amplitudeApiKey() {
+        return amplitudeApiKey;
+    }
+
+    public String amplitudeApiSecret() {
+        return amplitudeApiSecret;
+    }
+
+    public String splitApiKey() {
+        return splitApiKey;
+    }
+
+    public String splitTrafficType() {
+        return splitTrafficType;
+    }
+
+    public String splitEnvironment() {
+        return splitEnvironment;
+    }
+
+    public String eventTypePrefix() {
+        return eventTypePrefix;
+    }
+
+    public String userIdField() {
+        return userIdField;
+    }
+
+    public String valueField() {
+        return valueField;
+    }
+
+    public int batchSize() {
+        return batchSize;
+    }
+
+    public Set<String> propertyFields() {
+        return propertyFields;
     }
 
     public long jobElapsedTime() {

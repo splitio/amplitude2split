@@ -9,7 +9,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Base64;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 public class AmplitudeEventsClient {
@@ -22,27 +21,20 @@ public class AmplitudeEventsClient {
     }
 
     public Stream<AmplitudeEvent> getEvents() throws IOException, InterruptedException {
-        Optional<AmplitudeEventResult> result = requestEvents();
-        return result.map(AmplitudeEventResult::stream)
-                .orElse(Stream.empty());
-    }
-
-    private Optional<AmplitudeEventResult> requestEvents() throws IOException, InterruptedException {
+        // Build Request
         URI uri = URI.create(String.format(EVENTS_URL, config.windowStart(), config.windowEnd()));
-
+        HttpRequest request =  HttpRequest.newBuilder(uri).GET()
+                .header("Authorization", basicAuth(config.amplitudeApiKey(), config.amplitudeApiSecret()))
+                .build();
         System.out.printf("INFO - Requesting Amplitude events: GET %s %n", uri);
 
-        HttpRequest request =  HttpRequest.newBuilder(uri).GET()
-                .header("Authorization", basicAuth(config.amplitudeApiKey, config.amplitudeApiSecret))
-                .build();
+        // Process response
         HttpResponse<InputStream> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofInputStream());
-
-        int statusCode = response.statusCode();
-        if(statusCode >= 300) {
-            System.err.printf("ERROR - Amplitude events request failed: status=%s %n", statusCode);
-            return Optional.empty();
+        if(response.statusCode() >= 300) {
+            System.err.printf("ERROR - Amplitude events request failed: status=%s %n", response.statusCode());
+            return Stream.empty();
         }
-        return Optional.of(new AmplitudeEventResult(config, response.body()));
+        return new AmplitudeEventResult(config, response.body()).stream();
     }
 
     private static String basicAuth(String username, String password) {

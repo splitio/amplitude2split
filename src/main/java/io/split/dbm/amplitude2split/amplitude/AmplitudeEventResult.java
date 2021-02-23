@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -23,14 +22,14 @@ class AmplitudeEventResult implements Iterator<AmplitudeEvent> {
     private final ZipArchiveInputStream eventsArchive;
     private Iterator<AmplitudeEvent> fileIterator;
 
-    public AmplitudeEventResult(Configuration config, InputStream inputStream) throws IOException {
+    public AmplitudeEventResult(Configuration config, InputStream inputStream) {
         this.config = config;
-
         this.eventsArchive = new ZipArchiveInputStream(inputStream, "UTF-8", false, true);
     }
 
     public Stream<AmplitudeEvent> stream() {
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(this, Spliterator.NONNULL), false);
+        Spliterator<AmplitudeEvent> spliterator = Spliterators.spliteratorUnknownSize(this, Spliterator.NONNULL);
+        return StreamSupport.stream(spliterator, false);
     }
 
     @Override
@@ -44,36 +43,29 @@ class AmplitudeEventResult implements Iterator<AmplitudeEvent> {
     }
 
     public Iterator<AmplitudeEvent> getFileIterator() {
+        // Is current iterator active
         if(fileIterator == null || !fileIterator.hasNext()) {
-            Optional<Iterator<AmplitudeEvent>> nextFileIterator = nextFileIterator();
-            if(nextFileIterator.isEmpty()) {
+            try {
+                // Load next file from archive
+                ZipArchiveEntry entry = eventsArchive.getNextZipEntry();
+                if(entry == null) {
+                    return Collections.emptyIterator();
+                }
+                System.out.printf("INFO - Processing file: %s %n", entry.getName());
+
+                // Read Events From File
+                BufferedReader gzipFile = new BufferedReader(new InputStreamReader(new GZIPInputStream(eventsArchive)));
+
+                // Set File Iterator
+                fileIterator = gzipFile.lines()
+                        .map(line -> new AmplitudeEvent(line, config))
+                        .iterator();
+            } catch (IOException exception) {
+                System.err.println("ERROR - Error processing events archive");
+                exception.printStackTrace(System.err);
                 return Collections.emptyIterator();
             }
-            fileIterator = nextFileIterator.get();
         }
         return fileIterator;
-    }
-
-    private Optional<Iterator<AmplitudeEvent>> nextFileIterator() {
-        try {
-            // Load next file from archive
-            ZipArchiveEntry entry = eventsArchive.getNextZipEntry();
-            if(entry == null) {
-                return Optional.empty();
-            }
-            System.out.printf("INFO - Processing file: %s %n", entry.getName());
-
-            // Read Events From File
-            BufferedReader gzipFile = new BufferedReader(new InputStreamReader(new GZIPInputStream(eventsArchive)));
-            Iterator<AmplitudeEvent> events = gzipFile.lines()
-                    .map(line -> new AmplitudeEvent(line, config))
-                    .iterator();
-
-            return Optional.of(events);
-        } catch (IOException exception) {
-            System.err.println("ERROR - Cannot read from response");
-            exception.printStackTrace(System.err);
-            return Optional.empty();
-        }
     }
 }

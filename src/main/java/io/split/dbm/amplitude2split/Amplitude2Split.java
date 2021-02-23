@@ -2,8 +2,8 @@ package io.split.dbm.amplitude2split;
 
 import io.split.dbm.amplitude2split.amplitude.AmplitudeEvent;
 import io.split.dbm.amplitude2split.amplitude.AmplitudeEventsClient;
+import io.split.dbm.amplitude2split.split.SplitEvent;
 import io.split.dbm.amplitude2split.split.SplitEventsClient;
-import org.json.JSONObject;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -23,10 +23,9 @@ public class Amplitude2Split {
 
 		try {
 			// Parse config file
-			String configFilePath = args[0];
-			Configuration config = new Configuration(configFilePath);
+			Configuration config = Configuration.fromFile(args[0]);
 
-			System.out.printf("INFO - Starting Sync at: time=%s %n", config.jobStartTime());
+			System.out.println("INFO - Starting Sync");
 
 			// Initialize clients
 			AmplitudeEventsClient amplitudeEventsClient = new AmplitudeEventsClient(config);
@@ -34,15 +33,15 @@ public class Amplitude2Split {
 
 			// Get events from Amplitude
 			Stream<AmplitudeEvent> amplitudeEvents = amplitudeEventsClient.getEvents();
-			Stream<JSONObject> splitEvents = amplitudeEvents
-					.map(splitEventsClient::toSplitEvent)
+			Stream<SplitEvent> splitEvents = amplitudeEvents
+					.map(SplitEvent::toSplitEvent)
 					.flatMap(Optional::stream);
 
 			// Send events to Split in batches
-			List<JSONObject> batch = new LinkedList<>();
+			List<SplitEvent> batch = new LinkedList<>();
 			splitEvents.forEach(event -> {
 				batch.add(event);
-				if(batch.size() >= config.batchSize) {
+				if(batch.size() >= config.batchSize()) {
 					splitEventsClient.sendEvents(batch);
 					batch.clear();
 				}

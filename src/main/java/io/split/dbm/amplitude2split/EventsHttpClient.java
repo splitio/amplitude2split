@@ -25,7 +25,7 @@ public class EventsHttpClient {
         this.httpClient = HttpClient.newHttpClient();
     }
 
-    public Stream<Event> getEvents() throws IOException, InterruptedException {
+    public Stream<Event> getEventsFromAmplitude() throws IOException, InterruptedException {
         // Build Request
         URI uri = URI.create(String.format(AMPLITUDE_EVENTS_URL, config.windowStart(), config.windowEnd()));
         HttpRequest request =  HttpRequest.newBuilder(uri).GET()
@@ -42,19 +42,19 @@ public class EventsHttpClient {
         return new EventResult(config, response.body()).stream();
     }
 
-    public void sendEventsBatched(Stream<Event> events) {
+    public void sendEventsToSplitBatched(Stream<Event> events) {
         List<Event> batch = new LinkedList<>();
         events.forEach(event -> {
             batch.add(event);
             if(batch.size() >= config.batchSize()) {
-                sendEvents(batch);
+                sendEventsToSplit(batch);
                 batch.clear();
             }
         });
-        sendEvents(batch);
+        sendEventsToSplit(batch);
     }
 
-    public void sendEvents(List<Event> events) {
+    public void sendEventsToSplit(List<Event> events) {
         try {
             System.out.println("INFO - Sending batch of events: size=" + events.size());
 

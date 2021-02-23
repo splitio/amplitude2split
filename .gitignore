@@ -1,4 +1,5 @@
 # Default ignored files
-.idea/
+.idea
+target
 amplitude2split.iml
 configuration.json

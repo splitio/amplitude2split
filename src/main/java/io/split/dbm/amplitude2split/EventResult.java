@@ -1,6 +1,5 @@
-package io.split.dbm.amplitude2split.amplitude;
+package io.split.dbm.amplitude2split;
 
-import io.split.dbm.amplitude2split.Configuration;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 
@@ -16,19 +15,18 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import java.util.zip.GZIPInputStream;
 
-public
-class AmplitudeEventResult implements Iterator<AmplitudeEvent> {
+public class EventResult implements Iterator<Event> {
     private final Configuration config;
     private final ZipArchiveInputStream eventsArchive;
-    private Iterator<AmplitudeEvent> fileIterator;
+    private Iterator<Event> fileIterator;
 
-    public AmplitudeEventResult(Configuration config, InputStream inputStream) {
+    public EventResult(Configuration config, InputStream inputStream) {
         this.config = config;
         this.eventsArchive = new ZipArchiveInputStream(inputStream, "UTF-8", false, true);
     }
 
-    public Stream<AmplitudeEvent> stream() {
-        Spliterator<AmplitudeEvent> spliterator = Spliterators.spliteratorUnknownSize(this, Spliterator.NONNULL);
+    public Stream<Event> stream() {
+        Spliterator<Event> spliterator = Spliterators.spliteratorUnknownSize(this, Spliterator.NONNULL);
         return StreamSupport.stream(spliterator, false);
     }
 
@@ -38,11 +36,11 @@ class AmplitudeEventResult implements Iterator<AmplitudeEvent> {
     }
 
     @Override
-    public AmplitudeEvent next() {
+    public Event next() {
         return getFileIterator().next();
     }
 
-    public Iterator<AmplitudeEvent> getFileIterator() {
+    public Iterator<Event> getFileIterator() {
         // Is current iterator active
         if(fileIterator == null || !fileIterator.hasNext()) {
             try {
@@ -58,7 +56,7 @@ class AmplitudeEventResult implements Iterator<AmplitudeEvent> {
 
                 // Set File Iterator
                 fileIterator = gzipFile.lines()
-                        .map(line -> new AmplitudeEvent(line, config))
+                        .flatMap(line -> Event.fromJson(line, config).stream())
                         .iterator();
             } catch (IOException exception) {
                 System.err.println("ERROR - Error processing events archive");

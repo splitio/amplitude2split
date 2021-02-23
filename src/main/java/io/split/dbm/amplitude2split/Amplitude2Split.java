@@ -1,13 +1,5 @@
 package io.split.dbm.amplitude2split;
 
-import io.split.dbm.amplitude2split.amplitude.AmplitudeEvent;
-import io.split.dbm.amplitude2split.amplitude.AmplitudeEventsClient;
-import io.split.dbm.amplitude2split.split.SplitEvent;
-import io.split.dbm.amplitude2split.split.SplitEventsClient;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -27,26 +19,14 @@ public class Amplitude2Split {
 
 			System.out.println("INFO - Starting Sync");
 
-			// Initialize clients
-			AmplitudeEventsClient amplitudeEventsClient = new AmplitudeEventsClient(config);
-			SplitEventsClient splitEventsClient = new SplitEventsClient(config);
+			// Initialize client
+			EventsHttpClient eventsClient = new EventsHttpClient(config);
 
 			// Get events from Amplitude
-			Stream<AmplitudeEvent> amplitudeEvents = amplitudeEventsClient.getEvents();
-			Stream<SplitEvent> splitEvents = amplitudeEvents
-					.map(SplitEvent::toSplitEvent)
-					.flatMap(Optional::stream);
+			Stream<Event> events = eventsClient.getEvents();
 
 			// Send events to Split in batches
-			List<SplitEvent> batch = new LinkedList<>();
-			splitEvents.forEach(event -> {
-				batch.add(event);
-				if(batch.size() >= config.batchSize()) {
-					splitEventsClient.sendEvents(batch);
-					batch.clear();
-				}
-			});
-			splitEventsClient.sendEvents(batch);
+			eventsClient.sendEventsBatched(events);
 
 			// Finish
 			System.out.printf("INFO - Finished sync: elapsed= %ss %n", config.jobElapsedTime());

@@ -1,8 +1,7 @@
-package io.split.dbm.amplitude2split.amplitude;
+package io.split.dbm.amplitude2split;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import io.split.dbm.amplitude2split.Configuration;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,24 +10,42 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class AmplitudeEvent {
+public class Event {
     private static final SimpleDateFormat SERVER_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     private static final SimpleDateFormat SERVER_FORMAT_2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private final JsonObject amplitudeEvent;
-    private final Configuration config;
+    private transient final JsonObject amplitudeEvent;
+    private transient final Configuration config;
 
-    public AmplitudeEvent(String line, Configuration config) {
-        this.amplitudeEvent = new Gson().fromJson(line, JsonObject.class);
+    // Fields for serialization by Gson
+    private final String key;
+    private final String eventTypeId;
+    private final String trafficTypeName;
+    private final String environmentName;
+    private final Map<String, Object> properties;
+    private final long timestamp;
+    private final Double value;
+
+    public static Optional<Event> fromJson(String json, Configuration config) {
+        try {
+            return Optional.of(new Event(json, config));
+        } catch (IllegalStateException exception) {
+            System.err.printf("WARN - Error parsing event: error=%s %n", exception.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    public Event(String json, Configuration config) {
+        this.amplitudeEvent = new Gson().fromJson(json, JsonObject.class);
         this.config = config;
-    }
 
-    public String trafficType() {
-        return config.splitTrafficType();
-    }
-
-    public String environment() {
-        return config.splitEnvironment();
+        this.key = this.userId().orElseThrow(() -> new IllegalStateException("User ID is required."));
+        this.timestamp = this.timestamp().orElseThrow(() -> new IllegalStateException("Event time is required."));
+        this.value = this.value();
+        this.eventTypeId = this.eventTypeId();
+        this.properties = this.properties();
+        this.trafficTypeName = config.splitTrafficType();
+        this.environmentName = config.splitEnvironment();
     }
 
     public Optional<String> userId() {

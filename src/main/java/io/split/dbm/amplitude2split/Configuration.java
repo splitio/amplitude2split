@@ -7,38 +7,24 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Date;
 import java.util.Set;
 
 public class Configuration {
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd'T'HH");
-
     private final Duration fetchWindow;
     private final Instant jobStart;
 
-    @SerializedName("amplitude.api.key")
-    private String amplitudeApiKey;
-    @SerializedName("amplitude.api.secret")
-    private String amplitudeApiSecret;
-    @SerializedName("split.api.key")
-    private String splitApiKey;
-    @SerializedName("trafficType")
-    private String splitTrafficType;
-    @SerializedName("environment")
-    private String splitEnvironment;
-    @SerializedName("eventPrefix")
-    private String eventTypePrefix;
-    @SerializedName("key")
-    private String userIdField;
-    @SerializedName("value")
-    private String valueField;
-    @SerializedName("batchSize")
-    private int batchSize;
-    @SerializedName("string.property.keys")
-    private Set<String> propertyFields;
+    @SerializedName("amplitude.api.key") private String amplitudeApiKey;
+    @SerializedName("amplitude.api.secret") private String amplitudeApiSecret;
+    @SerializedName("split.api.key") private String splitApiKey;
+    @SerializedName("trafficType") private String splitTrafficType;
+    @SerializedName("environment") private String splitEnvironment;
+    @SerializedName("eventPrefix") private String eventTypePrefix;
+    @SerializedName("key") private String userIdField;
+    @SerializedName("value") private String valueField;
+    @SerializedName("batchSize") private int batchSize;
+    @SerializedName("string.property.keys") private Set<String> propertyFields;
 
     public static Configuration fromFile(String configFilePath) throws IOException {
         // Read Configuration
@@ -52,16 +38,12 @@ public class Configuration {
         this.fetchWindow = Duration.ofHours(1);
     }
 
-    public long jobElapsedTime() {
-        return Duration.between(jobStart, Instant.now()).getSeconds();
+    public Instant jobStart() {
+        return jobStart;
     }
 
-    public String windowStart() {
-        return DATE_FORMAT.format(Date.from(jobStart.minus(fetchWindow)));
-    }
-
-    public String windowEnd() {
-        return DATE_FORMAT.format(Date.from(jobStart));
+    public Duration fetchWindow() {
+        return fetchWindow;
     }
 
     public String amplitudeApiKey() {

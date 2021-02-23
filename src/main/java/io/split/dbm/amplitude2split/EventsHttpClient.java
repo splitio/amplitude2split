@@ -8,12 +8,15 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class EventsHttpClient {
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd'T'HH");
     private static final String AMPLITUDE_EVENTS_URL = "https://amplitude.com/api/2/export?start=%s&end=%s";
     private static final String SPLIT_EVENTS_URL = "https://events.split.io/api/events/bulk";
 
@@ -27,7 +30,9 @@ public class EventsHttpClient {
 
     public Stream<Event> getEventsFromAmplitude() throws IOException, InterruptedException {
         // Build Request
-        URI uri = URI.create(String.format(AMPLITUDE_EVENTS_URL, config.windowStart(), config.windowEnd()));
+        String windowStart = DATE_FORMAT.format(Date.from(config.jobStart().minus(config.fetchWindow())));
+        String windowEnd = DATE_FORMAT.format(Date.from(config.jobStart()));
+        URI uri = URI.create(String.format(AMPLITUDE_EVENTS_URL, windowStart, windowEnd));
         HttpRequest request =  HttpRequest.newBuilder(uri).GET()
                 .header("Authorization", basicAuth(config.amplitudeApiKey(), config.amplitudeApiSecret()))
                 .build();

@@ -14,7 +14,6 @@ public class Event {
     private static final SimpleDateFormat SERVER_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     private static final SimpleDateFormat SERVER_FORMAT_2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    // Fields for serialization by Gson
     private final String key;
     private final String eventTypeId;
     private final String trafficTypeName;
@@ -22,16 +21,6 @@ public class Event {
     private final Map<String, Object> properties;
     private final long timestamp;
     private final Double value;
-
-    public static Optional<Event> fromJson(String json, Configuration config) {
-        try {
-            JsonObject amplitudeEvent = new Gson().fromJson(json, JsonObject.class);
-            return Optional.of(new Event(amplitudeEvent, config));
-        } catch (IllegalStateException exception) {
-            System.err.printf("WARN - Error parsing event: error=%s %n", exception.getMessage());
-            return Optional.empty();
-        }
-    }
 
     public Event(JsonObject amplitudeEvent, Configuration config) {
         this.key = userId(amplitudeEvent, config).orElseThrow(() -> new IllegalStateException("User ID is required."));
@@ -43,6 +32,16 @@ public class Event {
         this.environmentName = config.splitEnvironment;
     }
 
+    public static Optional<Event> fromJson(String json, Configuration config) {
+        try {
+            JsonObject amplitudeEvent = new Gson().fromJson(json, JsonObject.class);
+            return Optional.of(new Event(amplitudeEvent, config));
+        } catch (IllegalStateException exception) {
+            System.err.printf("WARN - Error parsing event: error=%s %n", exception.getMessage());
+            return Optional.empty();
+        }
+    }
+
     private static Optional<String> userId(JsonObject amplitudeEvent, Configuration config) {
         String userIdField = config.userIdField;
         if(!amplitudeEvent.has(userIdField)) {
@@ -52,7 +51,7 @@ public class Event {
         return Optional.of(amplitudeEvent.get(userIdField).getAsString());
     }
 
-    public Double value(JsonObject amplitudeEvent, Configuration config) {
+    public static Double value(JsonObject amplitudeEvent, Configuration config) {
         // Only get value if field is set
         String valueField = config.valueField;
         if(valueField != null && !valueField.isEmpty()) {
@@ -65,14 +64,14 @@ public class Event {
         return null;
     }
 
-    public String eventTypeId(JsonObject amplitudeEvent, Configuration config) {
+    public static String eventTypeId(JsonObject amplitudeEvent, Configuration config) {
         if(amplitudeEvent.has("event_type")) {
             return config.eventTypePrefix + amplitudeEvent.get("event_type").getAsString();
         }
         return config.eventTypePrefix + "null";
     }
 
-    public Optional<Long> timestamp(JsonObject amplitudeEvent) {
+    public static Optional<Long> timestamp(JsonObject amplitudeEvent) {
         String serverUploadTime = amplitudeEvent.get("event_time").getAsString();
         Date parsedServerTime;
         try {
@@ -89,7 +88,7 @@ public class Event {
         return Optional.of(parsedServerTime.getTime());
     }
 
-    public Map<String, Object> properties(JsonObject amplitudeEvent, Configuration config) {
+    public static Map<String, Object> properties(JsonObject amplitudeEvent, Configuration config) {
         JsonObject userPropsObj = amplitudeEvent.getAsJsonObject("user_properties");
 
         HashMap<String, Object> properties = new HashMap<>();

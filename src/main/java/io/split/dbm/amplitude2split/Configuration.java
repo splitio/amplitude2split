@@ -52,6 +52,18 @@ public class Configuration {
         this.fetchWindow = Duration.ofHours(1);
     }
 
+    public long jobElapsedTime() {
+        return Duration.between(jobStart, Instant.now()).getSeconds();
+    }
+
+    public String windowStart() {
+        return DATE_FORMAT.format(Date.from(jobStart.minus(fetchWindow)));
+    }
+
+    public String windowEnd() {
+        return DATE_FORMAT.format(Date.from(jobStart));
+    }
+
     public String amplitudeApiKey() {
         return amplitudeApiKey;
     }
@@ -90,17 +102,5 @@ public class Configuration {
 
     public Set<String> propertyFields() {
         return propertyFields;
-    }
-
-    public long jobElapsedTime() {
-        return Duration.between(jobStart, Instant.now()).getSeconds();
-    }
-
-    public String windowStart() {
-        return DATE_FORMAT.format(Date.from(jobStart.minus(fetchWindow)));
-    }
-
-    public String windowEnd() {
-        return DATE_FORMAT.format(Date.from(jobStart));
     }
 }

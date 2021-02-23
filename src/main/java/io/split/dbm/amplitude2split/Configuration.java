@@ -7,47 +7,75 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
 public class Configuration {
-    public String AMPLITUDE_API_TOKEN;
-    public String AMPLITUDE_API_SECRET;
-    public String SPLIT_API_TOKEN;
-    public String SPLIT_TRAFFIC_TYPE;
-    public String SPLIT_ENVIRONMENT;
-    public String AMPLITUDE_PREFIX;
-    public String USER_ID;
-    public String VALUE_KEY;
-    public int BATCH_SIZE;
-    public Set<String> STRING_PROPERTY_KEYS;
-    public long jobStart;
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd'T'HH");
+
+    public String amplitudeApiKey;
+    public String amplitudeApiSecret;
+    public String splitApiKey;
+    public String splitTrafficType;
+    public String splitEnvironment;
+    public String eventTypePrefix;
+    public String userIdField;
+    public String valueField;
+    public int batchSize;
+    public Set<String> propertyFields;
+
+    private final Duration fetchWindow;
+    private final Instant jobStart;
 
     public Configuration() {
-        jobStart = System.currentTimeMillis();
+        this.jobStart = Instant.now();
+        this.fetchWindow = Duration.ofHours(1);
+    }
+
+    public String jobStartTime() {
+        return DATE_FORMAT.format(Date.from(jobStart));
+    }
+
+    public long jobElapsedTime() {
+        return Duration.between(jobStart, Instant.now()).getSeconds();
+    }
+
+    public String windowStart() {
+        return DATE_FORMAT.format(Date.from(jobStart.minus(fetchWindow)));
+    }
+
+    public String windowEnd() {
+        return DATE_FORMAT.format(Date.from(jobStart));
     }
 
     public static Optional<Configuration> fromFile(String configFilePath) {
         try {
-            Configuration config = new Configuration();
+            // Read Configuration
+            byte[] encoded = Files.readAllBytes(Paths.get(configFilePath));
+            String configContents = new String(encoded, Charset.defaultCharset());
+            JSONObject configObj = new JSONObject(configContents);
 
-            String configFile = readFile(configFilePath);
-            JSONObject configObj = new JSONObject(configFile);
-            config.AMPLITUDE_API_TOKEN = configObj.getString("amplitude.api.key");
-            config.AMPLITUDE_API_SECRET = configObj.getString("amplitude.api.secret");
-            config.SPLIT_API_TOKEN = configObj.getString("split.api.key");
-            config.SPLIT_TRAFFIC_TYPE = configObj.getString("trafficType");
-            config.SPLIT_ENVIRONMENT = configObj.getString("environment");
-            config.AMPLITUDE_PREFIX = configObj.getString("eventPrefix");
-            config.BATCH_SIZE = configObj.getInt("batchSize");
-            config.USER_ID = configObj.getString("key");
-            config.VALUE_KEY = configObj.getString("value");
+            // Build Configuration
+            Configuration config = new Configuration();
+            config.amplitudeApiKey = configObj.getString("amplitude.api.key");
+            config.amplitudeApiSecret = configObj.getString("amplitude.api.secret");
+            config.splitApiKey = configObj.getString("split.api.key");
+            config.splitTrafficType = configObj.getString("trafficType");
+            config.splitEnvironment = configObj.getString("environment");
+            config.eventTypePrefix = configObj.getString("eventPrefix");
+            config.batchSize = configObj.getInt("batchSize");
+            config.userIdField = configObj.getString("key");
+            config.valueField = configObj.getString("value");
 
             JSONArray keysArray = configObj.getJSONArray("string.property.keys");
-            config.STRING_PROPERTY_KEYS = new HashSet<>();
+            config.propertyFields = new HashSet<>();
             for(int i = 0; i < keysArray.length(); i++) {
-                config.STRING_PROPERTY_KEYS.add(keysArray.getString(i));
+                config.propertyFields.add(keysArray.getString(i));
             }
 
             return Optional.of(config);
@@ -55,10 +83,5 @@ public class Configuration {
             System.err.println("Error reading configuration file: " + configFilePath);
             return Optional.empty();
         }
-    }
-
-    public static String readFile(String path) throws IOException {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded, Charset.defaultCharset());
     }
 }

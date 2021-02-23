@@ -30,11 +30,11 @@ public class EventsHttpClient {
 
     public Stream<Event> getEventsFromAmplitude() throws IOException, InterruptedException {
         // Build Request
-        String windowStart = DATE_FORMAT.format(Date.from(config.jobStart().minus(config.fetchWindow())));
-        String windowEnd = DATE_FORMAT.format(Date.from(config.jobStart()));
+        String windowStart = DATE_FORMAT.format(Date.from(config.jobStart.minus(config.fetchWindow)));
+        String windowEnd = DATE_FORMAT.format(Date.from(config.jobStart));
         URI uri = URI.create(String.format(AMPLITUDE_EVENTS_URL, windowStart, windowEnd));
         HttpRequest request =  HttpRequest.newBuilder(uri).GET()
-                .header("Authorization", basicAuth(config.amplitudeApiKey(), config.amplitudeApiSecret()))
+                .header("Authorization", basicAuth(config.amplitudeApiKey, config.amplitudeApiSecret))
                 .build();
         System.out.printf("INFO - Requesting Amplitude events: GET %s %n", uri);
 
@@ -51,7 +51,7 @@ public class EventsHttpClient {
         List<Event> batch = new LinkedList<>();
         events.forEach(event -> {
             batch.add(event);
-            if(batch.size() >= config.batchSize()) {
+            if(batch.size() >= config.batchSize) {
                 sendEventsToSplit(batch);
                 batch.clear();
             }
@@ -66,7 +66,7 @@ public class EventsHttpClient {
             // Build Request
             HttpRequest request = HttpRequest.newBuilder(URI.create(SPLIT_EVENTS_URL))
                     .header("Content-type", "application/json")
-                    .header("Authorization", "Bearer " + config.splitApiKey())
+                    .header("Authorization", "Bearer " + config.splitApiKey)
                     .POST(HttpRequest.BodyPublishers.ofString(new Gson().toJson(events)))
                     .build();
 

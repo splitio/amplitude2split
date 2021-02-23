@@ -39,12 +39,12 @@ public class Event {
         this.value = value(amplitudeEvent, config);
         this.eventTypeId = eventTypeId(amplitudeEvent, config);
         this.properties = properties(amplitudeEvent, config);
-        this.trafficTypeName = config.splitTrafficType();
-        this.environmentName = config.splitEnvironment();
+        this.trafficTypeName = config.splitTrafficType;
+        this.environmentName = config.splitEnvironment;
     }
 
     private static Optional<String> userId(JsonObject amplitudeEvent, Configuration config) {
-        String userIdField = config.userIdField();
+        String userIdField = config.userIdField;
         if(!amplitudeEvent.has(userIdField)) {
             System.err.printf("WARN - User ID field not found for event: field=%s event=%s %n", userIdField, amplitudeEvent.toString());
             return Optional.empty();
@@ -54,7 +54,7 @@ public class Event {
 
     public Double value(JsonObject amplitudeEvent, Configuration config) {
         // Only get value if field is set
-        String valueField = config.valueField();
+        String valueField = config.valueField;
         if(valueField != null && !valueField.isEmpty()) {
             try {
                 return amplitudeEvent.get(valueField).getAsDouble();
@@ -66,11 +66,10 @@ public class Event {
     }
 
     public String eventTypeId(JsonObject amplitudeEvent, Configuration config) {
-        String eventTypeId = config.eventTypePrefix() + "null";
         if(amplitudeEvent.has("event_type")) {
-            eventTypeId = config.eventTypePrefix() + amplitudeEvent.get("event_type").getAsString();
+            return config.eventTypePrefix + amplitudeEvent.get("event_type").getAsString();
         }
-        return eventTypeId;
+        return config.eventTypePrefix + "null";
     }
 
     public Optional<Long> timestamp(JsonObject amplitudeEvent) {
@@ -91,21 +90,17 @@ public class Event {
     }
 
     public Map<String, Object> properties(JsonObject amplitudeEvent, Configuration config) {
-        HashMap<String, Object> properties = new HashMap<>();
+        JsonObject userPropsObj = amplitudeEvent.getAsJsonObject("user_properties");
 
-        for(String propertyKey : config.propertyFields()) {
+        HashMap<String, Object> properties = new HashMap<>();
+        for(String propertyKey : config.propertyFields) {
+            // Check Base Event
             if(amplitudeEvent.has(propertyKey) && !amplitudeEvent.get(propertyKey).isJsonNull()) {
                 properties.put(propertyKey, amplitudeEvent.get(propertyKey).getAsString());
             }
-        }
-
-        if(amplitudeEvent.has("user_properties")) {
-            JsonObject userPropsObj = amplitudeEvent.getAsJsonObject("user_properties");
-            String[] userPropsKeys = new String[] { "organizationPlatType", "role", "organizationName", "organizationSupportPlanType"};
-            for(String userPropKey : userPropsKeys) {
-                if(userPropsObj.has(userPropKey) && !userPropsObj.get(userPropKey).isJsonNull()) {
-                    properties.put("user_properties." + userPropKey, userPropsObj.get(userPropKey).getAsString());
-                }
+            // Check User Properties
+            if(userPropsObj != null && userPropsObj.has(propertyKey) && !userPropsObj.get(propertyKey).isJsonNull()) {
+                properties.put(propertyKey, userPropsObj.get(propertyKey).getAsString());
             }
         }
 

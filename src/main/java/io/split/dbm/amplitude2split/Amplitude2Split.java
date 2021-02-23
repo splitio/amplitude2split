@@ -4,10 +4,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.stream.Stream;
 
-/**
- * Hello world!
- *
- */
 public class Amplitude2Split {
 	public static void main(String[] args) {
 		if(args.length != 1) {
@@ -25,8 +21,8 @@ public class Amplitude2Split {
 			Stream<Event> events = eventsClient.getEventsFromAmplitude();
 			eventsClient.sendEventsToSplitBatched(events);
 
-			long elapsedTime = Duration.between(config.jobStart(), Instant.now()).getSeconds();
-			System.out.printf("INFO - Finished sync: elapsed= %ss %n", elapsedTime);
+			long elapsedTime = Duration.between(config.jobStart, Instant.now()).getSeconds();
+			System.out.printf("INFO - Finished sync: elapsed=%ss %n", elapsedTime);
 		} catch(Exception e) {
 			System.err.printf("ERROR - Exiting with error: %s %n", e.getMessage());
 			e.printStackTrace(System.err);

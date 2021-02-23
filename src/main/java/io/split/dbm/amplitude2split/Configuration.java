@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -12,77 +11,22 @@ import java.time.Instant;
 import java.util.Set;
 
 public class Configuration {
-    private final Duration fetchWindow;
-    private final Instant jobStart;
+    public final Instant jobStart = Instant.now();
+    public final Duration fetchWindow = Duration.ofHours(1);
 
-    @SerializedName("amplitude.api.key") private String amplitudeApiKey;
-    @SerializedName("amplitude.api.secret") private String amplitudeApiSecret;
-    @SerializedName("split.api.key") private String splitApiKey;
-    @SerializedName("trafficType") private String splitTrafficType;
-    @SerializedName("environment") private String splitEnvironment;
-    @SerializedName("eventPrefix") private String eventTypePrefix;
-    @SerializedName("key") private String userIdField;
-    @SerializedName("value") private String valueField;
-    @SerializedName("batchSize") private int batchSize;
-    @SerializedName("string.property.keys") private Set<String> propertyFields;
+    @SerializedName("amplitude.api.key") public String amplitudeApiKey;
+    @SerializedName("amplitude.api.secret") public String amplitudeApiSecret;
+    @SerializedName("split.api.key") public String splitApiKey;
+    @SerializedName("trafficType") public String splitTrafficType;
+    @SerializedName("environment") public String splitEnvironment;
+    @SerializedName("eventPrefix") public String eventTypePrefix;
+    @SerializedName("key") public String userIdField;
+    @SerializedName("value") public String valueField;
+    @SerializedName("batchSize") public int batchSize;
+    @SerializedName("string.property.keys") public Set<String> propertyFields;
 
     public static Configuration fromFile(String configFilePath) throws IOException {
-        // Read Configuration
-        byte[] encoded = Files.readAllBytes(Paths.get(configFilePath));
-        String configContents = new String(encoded, Charset.defaultCharset());
+        String configContents = Files.readString(Paths.get(configFilePath));
         return new Gson().fromJson(configContents, Configuration.class);
-    }
-
-    public Configuration() {
-        this.jobStart = Instant.now();
-        this.fetchWindow = Duration.ofHours(1);
-    }
-
-    public Instant jobStart() {
-        return jobStart;
-    }
-
-    public Duration fetchWindow() {
-        return fetchWindow;
-    }
-
-    public String amplitudeApiKey() {
-        return amplitudeApiKey;
-    }
-
-    public String amplitudeApiSecret() {
-        return amplitudeApiSecret;
-    }
-
-    public String splitApiKey() {
-        return splitApiKey;
-    }
-
-    public String splitTrafficType() {
-        return splitTrafficType;
-    }
-
-    public String splitEnvironment() {
-        return splitEnvironment;
-    }
-
-    public String eventTypePrefix() {
-        return eventTypePrefix;
-    }
-
-    public String userIdField() {
-        return userIdField;
-    }
-
-    public String valueField() {
-        return valueField;
-    }
-
-    public int batchSize() {
-        return batchSize;
-    }
-
-    public Set<String> propertyFields() {
-        return propertyFields;
     }
 }

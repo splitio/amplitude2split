@@ -1,7 +1,6 @@
 package io.split.dbm.amplitude2split;
 
 import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,6 +12,7 @@ import java.util.Set;
 public class Configuration {
     public final Instant jobStart = Instant.now();
     public final Duration fetchWindow = Duration.ofHours(1);
+
     public String amplitudeApiKey;
     public String amplitudeApiSecret;
     public String splitApiKey;

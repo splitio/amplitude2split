@@ -32,7 +32,28 @@ public class EventResult implements Iterator<Event> {
 
     @Override
     public boolean hasNext() {
-        return getFileIterator().hasNext();
+    	boolean result = false;
+        try {
+        	result = getFileIterator().hasNext();
+        } catch (Exception e) {
+    		System.err.println("WARN - exception reading JSON: " + e.getMessage() + ".  Beginning retry...");
+    		e.printStackTrace(System.err);
+    		
+        	int retries = 0;
+        	do {
+        		try {
+        			result = getFileIterator().hasNext(); // try again
+        		} catch (Exception ex) {
+            		System.err.println("WARN - exception reading JSON [" + (retries+1) + "]: " + e.getMessage());
+            		e.printStackTrace(System.err);
+        			result = false;
+        		}
+        	} while(retries++ < 10 && !result);
+        	if(!result) {
+        		System.err.println("ERROR - failed repeatedly while parsing JSON. Closing parse...");
+        	}
+        }
+        return result;
     }
 
     @Override

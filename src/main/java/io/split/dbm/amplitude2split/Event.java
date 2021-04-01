@@ -1,8 +1,5 @@
 package io.split.dbm.amplitude2split;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -10,17 +7,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 public class Event {
     private static final SimpleDateFormat SERVER_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     private static final SimpleDateFormat SERVER_FORMAT_2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private final String key;
-    private final String eventTypeId;
-    private final String trafficTypeName;
-    private final String environmentName;
-    private final Map<String, Object> properties;
-    private final long timestamp;
-    private final Double value;
+    public final String key;
+    public final String eventTypeId;
+    public final String trafficTypeName;
+    public final String environmentName;
+    public final Map<String, Object> properties;
+    public final long timestamp;
+    public final Double value;
 
     public Event(JsonObject amplitudeEvent, Configuration config) {
         this.key = userId(amplitudeEvent, config).orElseThrow(() -> new IllegalStateException("User ID is required."));
@@ -48,7 +48,7 @@ public class Event {
             System.err.printf("WARN - User ID field not found for event: field=%s event=%s %n", userIdField, amplitudeEvent.toString());
             return Optional.empty();
         }
-        return Optional.of(amplitudeEvent.get(userIdField).getAsString());
+        return Optional.of(amplitudeEvent.get(userIdField).toString().replace("\"", ""));
     }
 
     public static Double value(JsonObject amplitudeEvent, Configuration config) {

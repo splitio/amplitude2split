@@ -8,11 +8,15 @@ To run, build the project and find the executable JAR in the target/ subdirector
 
 mvn clean compile assembly:single
 
+### Tool Execution
+
 Run from command line (expects Java 11+):
 
 java -jar amplitude2split-0.0.1-SNAPSHOT-jar-with-dependencies.jar amplitude2split.config
 
-When run, builds a start and end time that describes the past hour, then invokes Amplitudes Export API (https://developers.amplitude.com/docs/export-api) to retrieve all events during that time period.  Amplitude responds with a compressed ZIP archive.  Amplitude2Split decompresses the archive in memory, yielding a set of GZIPd JSON files.  Amplitude2Split decompresses to JSON in memory, one file at a time, parsing the source JSON events and creating new Split JSON events.  Once a file finishes parsing, Amplitude2Split POSTs the Split Events in batches to Split's events API.  The contents of the events and the batch size is configurable.
+### Tool Funciton
+
+When run, builds a start and end time that describes the past durationInHours (as set in config), then invokes Amplitude's Export API (https://developers.amplitude.com/docs/export-api) to retrieve all events during that time period.  Amplitude responds with a compressed ZIP archive.  Amplitude2Split decompresses the archive in memory, yielding a set of GZIPd JSON files.  Amplitude2Split decompresses to JSON in memory, one file at a time, parsing the source JSON events and creating new Split JSON events.  Once a file finishes parsing, Amplitude2Split POSTs the Split Events in batches to Split's events API.  The contents of the events and the batch size is configurable.
 
 It takes about a minute to send 40k events with the default batch size of 5000.
 

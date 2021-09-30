@@ -9,6 +9,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
 import java.util.LinkedList;
@@ -30,7 +31,7 @@ public class EventsHttpClient {
 
     public Stream<Event> getEventsFromAmplitude() throws IOException, InterruptedException {
         // Build Request
-        String windowStart = DATE_FORMAT.format(Date.from(config.jobStart.minus(config.fetchWindow)));
+        String windowStart = DATE_FORMAT.format(Date.from(config.jobStart.minus(Duration.ofHours(config.durationInHours))));
         String windowEnd = DATE_FORMAT.format(Date.from(config.jobStart));
         URI uri = URI.create(String.format(AMPLITUDE_EVENTS_URL, windowStart, windowEnd));
         HttpRequest request =  HttpRequest.newBuilder(uri).GET()

@@ -4,6 +4,10 @@
 
 To run, build the project and find the executable JAR in the target/ subdirectory.  Create an amplitude2split.config (using instructions below) and be sure to put in correct API key and secret from Amplitude and Split Admin API key.  
 
+### Maven build
+
+mvn clean compile assembly:single
+
 Run from command line (expects Java 11+):
 
 java -jar amplitude2split-0.0.1-SNAPSHOT-jar-with-dependencies.jar amplitude2split.config
@@ -15,6 +19,7 @@ It takes about a minute to send 40k events with the default batch size of 5000.
 Configuration Fields:
 * "amplitudeApiKey" "amplitudeApiSecret" - Amplitude API key and secret from Amplitude UI
 * "splitApiKey" - Split Admin API key from Split UI
+* "durationInHours" - query for events captured this many hours ago 
 * "splitTrafficType" - Split traffic type, usually the default "user".
 * "splitEnvironment" - Split environment, often the default "Prod-Default".
 * "eventTypePrefix" - Split events will prefixed with "amp." by default to make them recognizable.  Empty string is accepted.
@@ -29,6 +34,7 @@ Sample amplitude2split.config:
   "amplitudeApiKey" : "094c***********dc951",
   "amplitudeApiSecret" : "0fd15***********77844b3",
   "splitApiKey" : "1s46c********8b321",
+  "durationInHours" : 1,
   "splitTrafficType" : "user",
   "splitEnvironment" : "Prod-Default",
   "eventTypePrefix" : "amp.",

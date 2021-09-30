@@ -20,7 +20,8 @@ When run, builds a start and end time that describes the past durationInHours (a
 
 It takes about a minute to send 40k events with the default batch size of 5000.
 
-Configuration Fields:
+### Configuration Fields
+
 * "amplitudeApiKey" "amplitudeApiSecret" - Amplitude API key and secret from Amplitude UI
 * "splitApiKey" - Split Admin API key from Split UI
 * "durationInHours" - query for events captured this many hours ago 
@@ -32,7 +33,7 @@ Configuration Fields:
 * "batchSize" - the number of Split events to post to Split in each batch
 * "propertyFields" - the array of Amplitude event keys to include in Split.  You can add or remove any key.  Only root elements are found.
 
-Sample amplitude2split.config:
+### Sample amplitude2split.config:
 ```
 {
   "amplitudeApiKey" : "094c***********dc951",

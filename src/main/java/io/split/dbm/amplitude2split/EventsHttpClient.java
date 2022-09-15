@@ -14,6 +14,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.stream.Stream;
 
 public class EventsHttpClient {
@@ -30,6 +31,8 @@ public class EventsHttpClient {
     }
 
     public Stream<Event> getEventsFromAmplitude() throws IOException, InterruptedException {
+        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
+
         // Build Request
         String windowStart = DATE_FORMAT.format(Date.from(config.jobStart.minus(Duration.ofHours(config.durationInHours))));
         String windowEnd = DATE_FORMAT.format(Date.from(config.jobStart));

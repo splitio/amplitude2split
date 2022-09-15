@@ -27,7 +27,17 @@ public class Event {
         this.timestamp = timestamp(amplitudeEvent).orElseThrow(() -> new IllegalStateException("Event time is required."));
         this.value = value(amplitudeEvent, config);
         this.eventTypeId = eventTypeId(amplitudeEvent, config);
-        this.properties = properties(amplitudeEvent, config);
+        JsonObject userPropsObj = amplitudeEvent.getAsJsonObject("user_properties");
+        this.properties = properties(amplitudeEvent, config, userPropsObj);
+
+	//System.out.println("amplitudeEvent: " + amplitudeEvent.toString());
+	//System.out.println("amplitudeEvent.getAsJsonObject(\"event_properties\")");
+	//System.out.println(amplitudeEvent.getAsJsonObject("event_properties"));
+
+	JsonObject eventPropsObj = amplitudeEvent.getAsJsonObject("event_properties");
+	Map<String, Object> eventProps = properties(amplitudeEvent, config, eventPropsObj);
+        this.properties.putAll(eventProps);
+	
         this.trafficTypeName = config.splitTrafficType;
         this.environmentName = config.splitEnvironment;
     }
@@ -88,8 +98,7 @@ public class Event {
         return Optional.of(parsedServerTime.getTime());
     }
 
-    public static Map<String, Object> properties(JsonObject amplitudeEvent, Configuration config) {
-        JsonObject userPropsObj = amplitudeEvent.getAsJsonObject("user_properties");
+    public static Map<String, Object> properties(JsonObject amplitudeEvent, Configuration config, JsonObject userPropsObj) {
 
         HashMap<String, Object> properties = new HashMap<>();
         for(String propertyKey : config.propertyFields) {
